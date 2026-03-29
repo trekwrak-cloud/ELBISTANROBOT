@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ELFUT V4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080810;
+            --surface: #0f0f1a;
+            --card: #13131f;
+            --border: #1e1e35;
+            --accent: #3d5afe;
+            --accent2: #ff1744;
+            --glow: rgba(61,90,254,0.3);
+            --text: #e0e0ff;
+            --muted: #4a4a6a;
+        }
+
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(61,90,254,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(61,90,254,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: rgba(13,13,26,0.95);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--accent2);
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(255,23,68,0.5);
+        }
+
+        .status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent2);
+            box-shadow: 0 0 8px var(--accent2);
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.on {
+            background: #00e676;
+            box-shadow: 0 0 8px #00e676;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--muted);
+        }
+
+        .conn-btns { display: flex; gap: 8px; }
+
+        .conn-btn {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .conn-btn:active { transform: scale(0.93); }
+        .conn-btn.bt { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 15px var(--glow); }
+
+        .ctrl-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 16px 20px;
+            gap: 10px;
+        }
+
+        .stop-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff1744, #d50000);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255,23,68,0.4);
+            transition: 0.1s;
+        }
+
+        .stop-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 10px rgba(255,23,68,0.2);
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 150px;
+            height: 150px;
+            flex-shrink: 0;
+        }
+
+        .d-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.08s;
+            box-shadow: 0 3px 0 #000;
+        }
+
+        .d-btn:active, .d-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--glow), 0 1px 0 #000;
+            transform: translateY(2px);
+        }
+
+        .joy-wrap {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .joy-base {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #0a0a18, #050508);
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 4px 20px #000, 0 0 20px rgba(61,90,254,0.1);
+            position: relative;
+        }
+
+        .joy-base::before {
+            content: '';
+            position: absolute;
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            border: 1px solid rgba(61,90,254,0.1);
+        }
+
+        .knob {
+            width: 65px;
+            height: 65px;
+            background: radial-gradient(circle at 35% 30%, #3a3a5c, #0d0d1a);
+            border-radius: 50%;
+            border: 2px solid #2a2a4a;
+            box-shadow: 0 6px 20px #000, inset 0 1px 0 rgba(255,255,255,0.05);
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        .knob::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #2a2a4a, #111128);
+            border: 1px solid #333355;
+        }
+
+        .face-btns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 150px;
+            height: 150px;
+            flex-shrink: 0;
+        }
+
+        .f-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.08s;
+            box-shadow: 0 3px 0 #000;
+        }
+
+        .f-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
+
+        .f-tri { color: #00e676; grid-column:2; grid-row:1; }
+        .f-tri:active { background: rgba(0,230,118,0.15); border-color: #00e676; }
+        .f-sqr { color: #e040fb; grid-column:1; grid-row:2; }
+        .f-sqr:active { background: rgba(224,64,251,0.15); border-color: #e040fb; }
+        .f-crc { color: var(--accent2); grid-column:3; grid-row:2; }
+        .f-crc:active { background: rgba(255,23,68,0.15); border-color: var(--accent2); }
+        .f-crs { color: #448aff; grid-column:2; grid-row:3; }
+        .f-crs:active { background: rgba(68,138,255,0.15); border-color: #448aff; }
+
+        @media (orientation: landscape) {
+            .ctrl-area {
+                flex-direction: row;
+                padding: 8px 20px;
+            }
+            .stop-btn {
+                writing-mode: vertical-rl;
+                width: 48px;
+                max-width: 48px;
+                height: 120px;
+                padding: 12px 8px;
+                font-size: 11px;
+                letter-spacing: 2px;
+            }
+            .dpad, .face-btns { width: 140px; height: 140px; }
+            .joy-base { width: 130px; height: 130px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <div class="topbar">
+        <div class="logo">ELFUT</div>
+        <div style="display:flex;align-items:center;gap:6px">
+            <span class="status-dot" id="dot"></span>
+            <span class="status-label" id="statusLabel">BAĞLI DEĞİL</span>
+        </div>
+        <div class="conn-btns">
+            <button class="conn-btn" onclick="initUSB()">💻 USB</button>
+            <button class="conn-btn bt" onclick="initBT()">🔵 BT</button>
+        </div>
+    </div>
+
+    <div class="ctrl-area">
+
+        <button class="stop-btn" onpointerdown="send('STOP')">■ STOP</button>
+
+        <div class="bottom-row">
+            <div class="dpad">
+                <div id="btn-UP"    class="d-btn" style="grid-column:2;grid-row:1"
+                     onpointerdown="startCmd('UP')" onpointerup="stopCmd()" onpointerleave="stopCmd()">↑</div>
+                <div id="btn-LEFT"  class="d-btn" style="grid-column:1;grid-row:2"
+                     onpointerdown="startCmd('LEFT')" onpointerup="stopCmd()" onpointerleave="stopCmd()">←</div>
+                <div id="btn-RIGHT" class="d-btn" style="grid-column:3;grid-row:2"
+                     onpointerdown="startCmd('RIGHT')" onpointerup="stopCmd()" onpointerleave="stopCmd()">→</div>
+                <div id="btn-DOWN"  class="d-btn" style="grid-column:2;grid-row:3"
+                     onpointerdown="startCmd('DOWN')" onpointerup="stopCmd()" onpointerleave="stopCmd()">↓</div>
+            </div>
+
+            <div class="joy-wrap">
+                <div class="joy-base" id="l-base">
+                    <div class="knob" id="k-l"></div>
+                </div>
+            </div>
+
+            <div class="face-btns">
+                <div class="f-btn f-tri" onpointerdown="startCmd('UP')"    onpointerup="stopCmd()">△</div>
+                <div class="f-btn f-sqr" onpointerdown="startCmd('LEFT')"  onpointerup="stopCmd()">□</div>
+                <div class="f-btn f-crc" onpointerdown="startCmd('RIGHT')" onpointerup="stopCmd()">○</div>
+                <div class="f-btn f-crs" onpointerdown="startCmd('DOWN')"  onpointerup="stopCmd()">✕</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let port, writer, btChar;
+    let currentCmd = null;
+    let cmdInterval = null;
+
+    function setStatus(msg, connected) {
+        document.getElementById('statusLabel').textContent = msg;
+        document.getElementById('dot').className = 'status-dot' + (connected ? ' on' : '');
+    }
+
+    async function initUSB() {
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 9600 });
+            writer = port.writable.getWriter();
+            setStatus('USB BAĞLANDI', true);
+        } catch (e) { alert("USB Hata: " + e.message); }
+    }
+
+    async function initBT() {
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: ['0000ffe0-0000-1000-8000-00805f9b34fb']
+            });
+            const server  = await device.gatt.connect();
+            const service = await server.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
+            btChar        = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
+            setStatus(device.name || 'BT BAĞLANDI', true);
+        } catch (e) { alert("BT Hata: " + e.message); }
+    }
+
+    async function send(data) {
+        const encoded = new TextEncoder().encode(data + "\n");
+        try {
+            if (btChar)      await btChar.writeValue(encoded);
+            else if (writer) await writer.write(encoded);
+        } catch(e) { console.error(e); }
+    }
+
+    function startCmd(cmd) {
+        stopCmd();
+        currentCmd = cmd;
+        send(cmd);
+        const btn = document.getElementById('btn-' + cmd);
+        if (btn) btn.classList.add('active');
+        cmdInterval = setInterval(() => send(cmd), 150);
+    }
+
+    function stopCmd() {
+        if (cmdInterval) { clearInterval(cmdInterval); cmdInterval = null; }
+        if (currentCmd) {
+            const btn = document.getElementById('btn-' + currentCmd);
+            if (btn) btn.classList.remove('active');
+            currentCmd = null;
+        }
+        send('STOP');
+    }
+
+    const keyMap = {
+        'w':'UP','W':'UP','ArrowUp':'UP',
+        'a':'LEFT','A':'LEFT','ArrowLeft':'LEFT',
+        's':'DOWN','S':'DOWN','ArrowDown':'DOWN',
+        'd':'RIGHT','D':'RIGHT','ArrowRight':'RIGHT',
+        ' ':'STOP'
+    };
+
+    const pressedKeys = new Set();
+
+    window.addEventListener('keydown', (e) => {
+        if (pressedKeys.has(e.key)) return;
+        pressedKeys.add(e.key);
+        const cmd = keyMap[e.key];
+        if (cmd === 'STOP') { stopCmd(); return; }
+        if (cmd) startCmd(cmd);
+    });
+
+    window.addEventListener('keyup', (e) => {
+        pressedKeys.delete(e.key);
+        const cmd = keyMap[e.key];
+        if (cmd) stopCmd();
+    });
+
+    function setupJoy(knobId, baseId) {
+        const knob = document.getElementById(knobId);
+        const base = document.getElementById(baseId);
+        let active = false;
+
+        const move = (e) => {
+            if (!active) return;
+            e.preventDefault();
+            const p = e.touches ? e.touches[0] : e;
+            const r = base.getBoundingClientRect();
+            let x = p.clientX - (r.left + r.width / 2);
+            let y = p.clientY - (r.top + r.height / 2);
+            const limit = 30;
+            const d = Math.sqrt(x*x + y*y);
+            if (d > limit) { x *= limit/d; y *= limit/d; }
+            knob.style.transform = `translate(${x}px, ${y}px)`;
+            send(`L:${Math.round(x)},${Math.round(y)}`);
+        };
+
+        const end = () => {
+            if (!active) return;
+            active = false;
+            knob.style.transition = '0.15s';
+            knob.style.transform = 'translate(0,0)';
+            setTimeout(() => knob.style.transition = 'none', 150);
+            send('L:0,0');
+        };
+
+        knob.addEventListener('mousedown',  () => { active = true; knob.style.transition = 'none'; });
+        knob.addEventListener('touchstart', (e) => { active = true; knob.style.transition = 'none'; e.preventDefault(); }, { passive: false });
+        window.addEventListener('mousemove',  move);
+        window.addEventListener('touchmove',  move, { passive: false });
+        window.addEventListener('mouseup',    end);
+        window.addEventListener('touchend',   end);
+    }
+
+    setupJoy('k-l', 'l-base');
+</script>
+</body>
+</html>
